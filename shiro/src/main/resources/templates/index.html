@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.thymeleaf.org/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+    <h1>门户网站</h1>
+    <div shiro:hasRole="admin">
+        <h2>欢迎您，管理员大人！</h2>
+    </div>
+    <a th:href="@{/user/logout}">退出登录</a>
+    <div>
+        <ul>
+            <li shiro:hasPermission="query">查询订单</li>
+            <li shiro:hasPermission="update">修改订单</li>
+            <li shiro:hasPermission="add">新增订单</li>
+            <li shiro:hasPermission="delete">删除订单</li>
+        </ul>
+    </div>
+</body>
+</html>

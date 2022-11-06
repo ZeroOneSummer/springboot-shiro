@@ -1,0 +1,1 @@
+.\consul agent -server -ui -node=consul-test -data-dir=D:\workspace\idea\boc-tsf\consul\data -bootstrap-expect 1 -client=0.0.0.0 -bind=127.0.0.1

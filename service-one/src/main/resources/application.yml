@@ -1,0 +1,44 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: service-one
+  cloud:
+    consul:
+      host: localhost #  默认localhost
+      port: 8500  # 默认8500
+      enabled: true # 默认true
+      # 服务注册
+      discovery:
+        register: false # 默认true，是否注册到注册中心
+        health-check-path: /actuator/health  # http://localhost:9090/actuator/health
+        heartbeat:
+          enabled: false
+      # 配置中心
+      config:
+        fail-fast: true
+        enabled: true
+        prefix: config   # 默认config
+        data-key: data  # 默认data，完整路径 prefix/application或服务名.dev/data
+        default-context: ${spring.application.name}  # 默认上下文
+        profile-separator: '.'  # 服务名.环境
+        format: yaml
+        Watch:
+          enabled: true
+          delay: 1000
+
+# 健康检查，端点暴露
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'    # 端点查询 http://localhost:9090/actuator/health或routes或filters等
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.bocsoft.obss.zuul: debug

@@ -1,0 +1,134 @@
+server:
+  port: 9090
+  servlet:
+    context-path: /
+
+spring:
+#  main:
+#    allow-bean-definition-overriding: true
+  application:
+    name: shiro-jwt-app
+  datasource:
+#    url: jdbc:mysql://localhost:3306/springboot-master?useSSL=false&allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&tinyInt1isBit=false
+#    username: root
+#    password: root
+    initialization-mode: always
+    schema: classpath:db/h2_create_table.sql
+    data: classpath:db/h2_init_data.sql
+    type: com.alibaba.druid.pool.DruidDataSource
+    # 连接池配置
+    druid:
+      # 初始化大小，最小，最大
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      # 配置获取连接等待超时的时间
+      max-wait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      # 打开PSCache，并且指定每个连接上PSCache的大小
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      filters: stat,wall,log4j2
+      use-global-data-source-stat: true
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connect-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      # 配置监控服务器
+      stat-view-servlet:
+        enabled: true
+        reset-enable: false
+        url-pattern: /druid/*    # http://localhost:9090/druid   访问管理界面
+        login-username: root
+        login-password: root
+        # 添加IP白名单
+        #allow:
+        # 添加IP黑名单，当白名单和黑名单重复时，黑名单优先级更高
+        #deny:
+      web-stat-filter:
+        # 添加过滤规则
+        url-pattern: /*
+        # 忽略过滤格式
+        exclusions: "*.js,*.gif,*.jpg,*.jpeg,*.png,*.css,*.ico,/druid/*"
+    # h2
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:~/test;AUTO_SERVER=TRUE  # ~代表用户根目录，自动混合模式（允许多个客户端访问）
+    username: root
+    password: root
+  h2:
+    console:
+      path: /h2        # http://localhost:9090/h2   访问DB管理界面
+      enabled: true
+      settings:
+        trace: true             #开启h2 console 跟踪方便调试，默认 false
+        web-allow-others: true  #允许 console 远程访问，默认false
+  # thymeleaf
+  thymeleaf:
+    cache: false
+    enabled: true
+  # Redis配置
+  redis:
+    database: 1
+    host: localhost
+    port: 6379
+    password: 123456
+    timeout: 5000
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+
+## mybatis
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*.xml
+  type-aliases-package: com.bocsoft.obss.shiro.entity
+  global-config:
+    db-config:
+      id-type: auto
+      capital-mode: true
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+info:
+  app.name: springboot-shiro-jwt-web
+  company.name: doufuplus
+  build.artifactId: $project.artifactId$
+  build.modelVersion: $project.modelVersion$
+
+## 日志配置
+logging:
+  level:
+    com.bocsoft.obss.shiro: DEBUG
+
+
+## 其它配置
+config:
+  # JWT认证加密私钥(Base64加密)
+  encrypt-jwtKey: U0JBUElOENhspJrzkyNjQ1NA
+  # AccessToken过期时间(秒)
+  accessToken-expireTime: 600
+  # RefreshToken过期时间(秒)
+  refreshToken-expireTime: 604800
+  # Shiro缓存过期时间(秒)(一般设置与AccessToken过期时间一致) 此处CustomCache读取失败，待解决
+  shiro-cache-expireTime: 600
+
+# actuator健康检查
+management:
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      show-details: always

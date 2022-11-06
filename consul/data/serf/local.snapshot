@@ -1,0 +1,4 @@
+alive: consul-test 127.0.0.1:8301
+event-clock: 1
+alive: consul-test 127.0.0.1:8301
+event-clock: 2

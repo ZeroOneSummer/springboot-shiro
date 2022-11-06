@@ -1,0 +1,11 @@
+1.H2数据库
+http://localhost:9090/h2                    root/root
+
+2.druid监控
+http://localhost:9090/druid                 root/root
+
+3.swagger文档
+http://localhost:9090/swagger-ui.html       root/root
+
+4.登录页面
+http://localhost:9090/user/login.html       zhang/123456

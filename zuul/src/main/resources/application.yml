@@ -1,0 +1,62 @@
+server:
+  port: 9090
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: zuul-server
+  cloud:
+    consul:
+      host: localhost #  默认localhost
+      port: 8500  # 默认8500
+      enabled: true # 默认true
+      # 服务注册
+      discovery:
+        register: true # 默认true，是否注册到注册中心
+        health-check-path: /actuator/health  # http://localhost:9090/actuator/health
+        heartbeat:
+          enabled: true
+      # 配置中心
+      config:
+        fail-fast: true
+        enabled: true
+        prefix: config   # 默认config
+        data-key: data  # 默认data，完整路径 prefix/application或服务名.dev/data
+        default-context: ${spring.application.name}  # 默认上下文
+        profile-separator: '.'  # 服务名.环境
+        format: yaml
+        Watch:
+          enabled: true
+          delay: 1000
+
+
+zuul:
+  prefix: /api                  # 添加全局代理前缀
+  strip-prefix: true            # 默认为true，是否带上代理前缀prefix
+  ignored-headers: token        # 全局忽略头，忽略 token 这个请求头，不向下游服务传递这个token请求头
+  routes:
+    ignored-services: '*'           # 忽略所有微服务，只路由指定微服务
+    #ignoredPatterns: /**/admin/**   # 细颗粒度的忽略
+    api-a:
+      service-id: service-one
+      path: /ser1/**              # 服务转发 http://localhost:9090/api/ser1/s1/hello/yayaya
+    service-two: /ser2/**
+    api-b:
+      path: /bd/**
+      url: https://www.baidu.com/   # 服务转发 http://localhost:9090/api  /bd/index.html
+      #strip-prefix: false
+  sensitive-headers: Cookie,Set-Cookie,Authorization  #默认的拦截掉了请求头
+
+# 健康检查，端点暴露
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'    # 端点查询 http://localhost:9090/actuator/health或routes或filters等
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.bocsoft.obss.zuul: debug
