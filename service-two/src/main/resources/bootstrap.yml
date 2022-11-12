@@ -8,14 +8,14 @@ spring:
       enabled: false # 默认true
       # 服务注册
       discovery:
-        register: false # 默认true，是否注册到注册中心
+        register: true # 默认true，是否注册到注册中心
         health-check-path: /actuator/health  # http://localhost:9090/actuator/health
         heartbeat:
-          enabled: false
+          enabled: true
       # 配置中心
       config:
+        enabled: false
         fail-fast: true
-        enabled: true
         prefix: config   # 默认config
         data-key: data  # 默认data，完整路径 prefix/application或服务名.dev/data
         default-context: ${spring.application.name}  # 默认上下文
