@@ -1,1 +1,0 @@
-{"Token":"","Service":{"ID":"service-one-8081","Service":"service-one","Tags":["secure=false"],"Address":"Aurora-Computer","Meta":{},"Port":8081,"Weights":{"Passing":1,"Warning":1},"EnableTagOverride":false,"Proxy":{"Mode":"","MeshGateway":{},"Expose":{}},"Connect":{},"CreateIndex":0,"ModifyIndex":0},"Source":"remote"}

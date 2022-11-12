@@ -1,22 +1,17 @@
-server:
-  port: 8082
-  servlet:
-    context-path: /
 
 spring:
-  application:
-    name: service-two
+  profiles: dev
   cloud:
     consul:
       host: localhost #  默认localhost
       port: 8500  # 默认8500
-      enabled: true # 默认true
+      enabled: false # 默认true
       # 服务注册
       discovery:
-        register: true # 默认true，是否注册到注册中心
+        register: false # 默认true，是否注册到注册中心
         health-check-path: /actuator/health  # http://localhost:9090/actuator/health
         heartbeat:
-          enabled: true
+          enabled: false
       # 配置中心
       config:
         fail-fast: true
@@ -29,16 +24,3 @@ spring:
         Watch:
           enabled: true
           delay: 1000
-
-# 健康检查，端点暴露
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'    # 端点查询 http://localhost:9090/actuator/health或routes或filters等
-    health:
-      show-details: always
-
-logging:
-  level:
-    com.bocsoft.obss.zuul: debug

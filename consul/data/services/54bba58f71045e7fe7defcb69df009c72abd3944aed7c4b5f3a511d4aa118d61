@@ -1,1 +1,0 @@
-{"Token":"","Service":{"ID":"zuul-server-9090","Service":"zuul-server","Tags":["secure=false"],"Address":"Aurora-Computer","Meta":{},"Port":9090,"Weights":{"Passing":1,"Warning":1},"EnableTagOverride":false,"Proxy":{"Mode":"","MeshGateway":{},"Expose":{}},"Connect":{},"CreateIndex":0,"ModifyIndex":0},"Source":"remote"}
