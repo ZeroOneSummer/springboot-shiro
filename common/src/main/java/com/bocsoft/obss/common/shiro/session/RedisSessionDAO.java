@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * session存放在redis缓存中
+ * 【session存放在redis缓存中】
  */
 @Setter
 @Slf4j

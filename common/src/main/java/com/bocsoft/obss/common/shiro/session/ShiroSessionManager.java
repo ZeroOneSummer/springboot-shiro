@@ -9,6 +9,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.Serializable;
 
+/**
+ * 【从请求头获取token】
+ */
 public class ShiroSessionManager extends DefaultWebSessionManager {
 
     public static final String TOKEN = "Token";
@@ -23,10 +26,11 @@ public class ShiroSessionManager extends DefaultWebSessionManager {
     @Override
     protected Serializable getSessionId(ServletRequest request, ServletResponse response) {
         String token = WebUtils.toHttp(request).getHeader(TOKEN);
-        if (!StringUtils.hasText(token)){
+        if (StringUtils.hasText(token)){
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID, token);
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE, "Stateless request");
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_IS_VALID, true);
+            //如果找不到该token，进入ShiroAuthenFilter决定是否放行
             return token;
         } else {
             return super.getSessionId(request, response);

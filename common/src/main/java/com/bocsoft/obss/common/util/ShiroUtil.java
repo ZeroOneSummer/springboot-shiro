@@ -8,7 +8,8 @@ public class ShiroUtil {
      * 获取指定长度的盐
      */
     public static String getSalt(int lenght){
-        String str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()";
+        //去掉o、i混淆的字母
+        String str = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz!@#$%^&*()";
         char[] chars = str.toCharArray();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < lenght; i++) {

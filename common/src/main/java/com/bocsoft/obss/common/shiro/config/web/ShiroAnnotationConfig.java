@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * shiro注解配置类
+ * 【开启shiro的权限注解】
  */
 @Configuration
 @ConditionalOnProperty(name = "shiro.annotation.enabled", matchIfMissing = true) //没匹配到，默认true

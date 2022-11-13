@@ -10,15 +10,9 @@ import com.bocsoft.obss.common.shiro.session.RedisSessionDAO;
 import com.bocsoft.obss.common.shiro.session.ShiroSessionListener;
 import com.bocsoft.obss.common.shiro.session.ShiroSessionManager;
 import com.bocsoft.obss.common.util.RedisUtil;
-import org.apache.shiro.authc.Authenticator;
-import org.apache.shiro.authc.pam.AuthenticationStrategy;
 import org.apache.shiro.authz.Authorizer;
-import org.apache.shiro.mgt.SessionStorageEvaluator;
 import org.apache.shiro.mgt.SessionsSecurityManager;
-import org.apache.shiro.mgt.SubjectDAO;
-import org.apache.shiro.mgt.SubjectFactory;
 import org.apache.shiro.realm.Realm;
-import org.apache.shiro.session.mgt.SessionFactory;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator;
 import org.apache.shiro.session.mgt.eis.SessionDAO;
@@ -37,12 +31,9 @@ import java.util.List;
 
 /**
  * 参考 shiro-spring-boot-web-starter 的 spring.factories
+ * 【shiro-web-config】
  */
-//@ConditionalOnClass(WebSubject.class)
 @Configuration
-//@AutoConfigureBefore({ShiroAutoConfiguration.class})
-//@AutoConfigureBefore({ShiroConfig.class, ShiroAnnotationProcessorConfiguration.class})
-//@AutoConfigureBefore({ShiroConfig.class})
 @ConditionalOnProperty(name = {"shiro.enabled"}, matchIfMissing = true) //没匹配到，默认true
 public class ShiroWebAutoConfiguration extends AbstractShiroWebConfiguration {
 
@@ -50,53 +41,18 @@ public class ShiroWebAutoConfiguration extends AbstractShiroWebConfiguration {
     private RedisUtil redisUtil;
 
     @Bean
-    @ConditionalOnMissingBean
-    @Override
-    protected AuthenticationStrategy authenticationStrategy() {
-        return super.authenticationStrategy();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    @Override
-    protected Authenticator authenticator() {
-        return super.authenticator();
-    }
-
-//    @Bean
     @ConditionalOnMissingBean(name = "authorizer") //不加authorizer会报找不到
     @Override
     protected Authorizer authorizer() {
         return super.authorizer();
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    @Override
-    protected SubjectDAO subjectDAO() {
-        return super.subjectDAO();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    @Override
-    protected SessionStorageEvaluator sessionStorageEvaluator() {
-        return super.sessionStorageEvaluator();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    @Override
-    protected SubjectFactory subjectFactory() {
-        return super.subjectFactory();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    @Override
-    protected SessionFactory sessionFactory() {
-        return super.sessionFactory();
-    }
+//    @Bean
+//    @ConditionalOnMissingBean
+//    @Override
+//    protected SessionFactory sessionFactory() {
+//        return super.sessionFactory();
+//    }
 
     @Bean
     @ConditionalOnMissingBean

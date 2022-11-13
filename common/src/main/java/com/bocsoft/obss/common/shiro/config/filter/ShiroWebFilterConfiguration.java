@@ -1,7 +1,6 @@
 package com.bocsoft.obss.common.shiro.config.filter;
 
 import com.bocsoft.obss.common.shiro.config.web.ShiroConfig;
-import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -17,19 +16,6 @@ import javax.servlet.DispatcherType;
 @ConditionalOnProperty(name = {"shiro.enabled"}, matchIfMissing = true)
 @AutoConfigureAfter({ShiroConfig.class})
 public class ShiroWebFilterConfiguration extends AbstractShiroWebFilterConfiguration {
-
-    /**
-     * 自定义filter
-     * @return
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    @Override
-    protected ShiroFilterFactoryBean shiroFilterFactoryBean() {
-        ShiroFilterFactoryBean shiroFilterFactoryBean = super.shiroFilterFactoryBean();
-        shiroFilterFactoryBean.getFilters().put("authc", new ShiroAuthenFilter());
-        return shiroFilterFactoryBean;
-    }
 
     @Bean(name = {"filterShiroFilterRegistrationBean"})
     @ConditionalOnMissingBean

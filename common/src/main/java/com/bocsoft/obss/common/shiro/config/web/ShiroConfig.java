@@ -1,8 +1,7 @@
 package com.bocsoft.obss.common.shiro.config.web;
 
-import com.bocsoft.obss.common.shiro.constant.ShiroConstant;
+import com.bocsoft.obss.common.shiro.config.filter.ShiroAuthenFilter;
 import com.bocsoft.obss.common.util.RedisUtil;
-import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.event.EventBus;
 import org.apache.shiro.event.support.DefaultEventBus;
@@ -18,6 +17,9 @@ import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
 import java.util.Properties;
 
+/**
+ * 【shiro-config】
+ */
 @Configuration
 public class ShiroConfig {
 
@@ -30,20 +32,8 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         shiroFilterFactoryBean.setLoginUrl("/user/login.html");
         //shiroFilterFactoryBean.setUnauthorizedUrl("/noauth");
+        //shiroFilterFactoryBean.getFilters().put("authc", new ShiroAuthenFilter());
         return shiroFilterFactoryBean;
-    }
-
-    /**
-     * 配置密码比较器
-     */
-    @Bean
-    public HashedCredentialsMatcher hashedCredentialsMatcher(){
-        HashedCredentialsMatcher hashedCredentialsMatcher  = new HashedCredentialsMatcher();
-        hashedCredentialsMatcher .setHashAlgorithmName(ShiroConstant.HASH_ALGORITHM_NAME);
-        hashedCredentialsMatcher .setHashIterations(ShiroConstant.HASH_ITERATORS);
-        //是否存储为16进制
-        hashedCredentialsMatcher .setStoredCredentialsHexEncoded(true);
-        return hashedCredentialsMatcher ;
     }
 
     /**
@@ -66,27 +56,27 @@ public class ShiroConfig {
     }
 
     /**
-     * FormAuthenticationFilter 过滤器 过滤记住我
+     * ShiroAuthenFilter生效
      */
     @Bean
     public FormAuthenticationFilter formAuthenticationFilter(){
-        FormAuthenticationFilter formAuthenticationFilter = new FormAuthenticationFilter();
+        ShiroAuthenFilter shiroAuthenFilter = new ShiroAuthenFilter();
         //对应前端的checkbox的name = rememberMe
-        formAuthenticationFilter.setRememberMeParam("rememberMe");
-        return formAuthenticationFilter;
+        shiroAuthenFilter.setRememberMeParam("rememberMe");
+        return shiroAuthenFilter;
     }
 
     /**
      * 异常解析跳转
      */
-    @Bean
+    /*@Bean
     public SimpleMappingExceptionResolver resolver() {
         SimpleMappingExceptionResolver exceptionResolver = new SimpleMappingExceptionResolver();
         Properties properties = new Properties();
         properties.setProperty("org.apache.shiro.authz.UnauthorizedException", "error/403");
         exceptionResolver.setExceptionMappings(properties);
         return exceptionResolver;
-    }
+    }*/
 
     @Bean
     public EventBus eventBus() {

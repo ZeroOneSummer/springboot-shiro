@@ -12,13 +12,13 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 自定义过滤
+ * 【sessionId（token）错误时，是否放行】
  */
 @Slf4j
 public class ShiroAuthenFilter extends FormAuthenticationFilter {
 
     /**
-     * 是否是拒绝登录
+     * 是否是拒绝登录(访问受限时进入该方法)
      * @param request
      * @param response
      * @return
@@ -39,7 +39,7 @@ public class ShiroAuthenFilter extends FormAuthenticationFilter {
                 if (log.isTraceEnabled()) {
                     log.trace("Login page view.");
                 }
-                //进入登录页面
+                //已经登录过，直接放行
                 return true;
             }
         } else {
@@ -47,7 +47,7 @@ public class ShiroAuthenFilter extends FormAuthenticationFilter {
                 log.trace("Attempting to access a path which requires authentication.  Forwarding to the Authentication url [" + this.getLoginUrl() + "]");
             }
             //自定义返回错误格式
-            Result<String> error = Result.error("用户名或密码错误！");
+            Result<String> error = Result.error("token令牌不正确！");
             response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             PrintWriter writer = response.getWriter();

@@ -85,15 +85,15 @@ public class UserController {
             } catch (UnknownAccountException e) {
                 //表示用户的账号错误，这个异常是在后台抛出
                 log.error("账号错误!");
-                Result.error("账号错误!");
+                return Result.error("账号错误!");
             } catch (LockedAccountException e) {
                 //表示用户的账号被锁定，这个异常是在后台抛出
                 log.error("账号被冻结!");
-                Result.error("账号被冻结!");
+                return Result.error("账号被冻结!");
             } catch (IncorrectCredentialsException e) {
                 //表示用户的密码错误，这个异常是shiro在认证密码时抛出
                 log.error("密码错误!");
-                Result.error("密码错误!");
+                return Result.error("密码错误!");
             }
         }
         //获取sessionId作为token返回给前端(需关闭向页面发生cookie)
@@ -108,7 +108,7 @@ public class UserController {
         if (!subject.isAuthenticated()) {
             log.info("未登录！");
             model.addAttribute("msg", "未登录！");
-            return "redirect:/login";
+            return "redirect:/user/login.html";
         }
         String webToken = subject.getSession().getId().toString();
         model.addAttribute("token", webToken);
@@ -118,11 +118,11 @@ public class UserController {
     @ApiOperation(value = "注册", notes = "注册")
     @PostMapping("register")
     public String register(@ApiParam(name = "username", value = "用户名", defaultValue = "lisa")
-                                                 @RequestParam(value = "username") String username,
-                                                 @ApiParam(name = "password", value = "密码", defaultValue = "123456")
-                                                 @RequestParam(value = "password") String password,
-                                                 @ApiParam(name = "bankno", value = "银行号", defaultValue = "105")
-                                                 @RequestParam(value = "bankno") String bankno) {
+                           @RequestParam(value = "username") String username,
+                           @ApiParam(name = "password", value = "密码", defaultValue = "123456")
+                           @RequestParam(value = "password") String password,
+                           @ApiParam(name = "bankno", value = "银行号", defaultValue = "105")
+                           @RequestParam(value = "bankno") String bankno) {
         String salt = ShiroUtil.getSalt(ShiroConstant.SALT_LENGTH);
         String hexPassword = new SimpleHash(ShiroConstant.HASH_ALGORITHM_NAME, password, salt, ShiroConstant.HASH_ITERATORS).toString();
         int rt = userMapper.insert(UserBean.builder()
@@ -133,7 +133,7 @@ public class UserController {
                         .roles("visitor")
                         .perms("query")
                         .build());
-        return rt > 0 ? "redirect:/login" : "redirect:/register";
+        return rt > 0 ? "redirect:/user/login.html" : "redirect:/user//register.html";
     }
 
     @ApiOperation(value = "登出", notes = "登出")
@@ -149,7 +149,7 @@ public class UserController {
     @PostMapping("test")
     public @ResponseBody Result<String> test() {
         log.info("权限测试-角色, ok!");
-        return Result.success();
+        return Result.success("test ok");
     }
 
     @RequiresPermissions("delete")
@@ -157,6 +157,6 @@ public class UserController {
     @PostMapping("del")
     public @ResponseBody Result<String> del() {
         log.info("权限测试-del, ok!");
-        return Result.success();
+        return Result.success("del ok");
     }
 }
