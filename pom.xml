@@ -21,6 +21,7 @@
         <module>service-one</module>
         <module>service-two</module>
         <module>shiro</module>
+        <module>common</module>
     </modules>
 
     <properties>

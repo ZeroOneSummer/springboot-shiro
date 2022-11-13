@@ -1,4 +1,4 @@
-package com.bocsoft.obss.shiro.redis;
+package com.bocsoft.obss.common.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -7,10 +7,10 @@ import org.springframework.data.redis.serializer.SerializationException;
 import java.io.*;
 
 /**
- * redis的value序列化工具
+ * redis的value序列化工具, 防止存入session接口对象后，反序列化失败
  */
 @Slf4j
-public class SerializeUtils implements RedisSerializer {
+public class SerializeUtil implements RedisSerializer {
 
     private static boolean isEmpty(byte[] data) {
         return (data == null || data.length == 0);
@@ -30,7 +30,7 @@ public class SerializeUtils implements RedisSerializer {
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)
         ) {
             if (!(object instanceof Serializable)) {
-                throw new IllegalArgumentException(SerializeUtils.class.getSimpleName() + " requires a Serializable payload " +
+                throw new IllegalArgumentException(SerializeUtil.class.getSimpleName() + " requires a Serializable payload " +
                         "but received an object of type [" + object.getClass().getName() + "]");
             }
             objectOutputStream.writeObject(object);

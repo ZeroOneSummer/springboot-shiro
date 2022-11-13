@@ -125,6 +125,18 @@ config:
   # Shiro缓存过期时间(秒)(一般设置与AccessToken过期时间一致) 此处CustomCache读取失败，待解决
   shiro-cache-expireTime: 600
 
+# shiro
+shiro:
+  enabled: true
+  annotation:
+    enable: true
+  session:
+    prefix: 'shiro:session:'
+    timeout: 30
+  cache:
+    prefix: 'shiro:cache:'
+    timeout: 30
+
 # actuator健康检查
 management:
   endpoint:

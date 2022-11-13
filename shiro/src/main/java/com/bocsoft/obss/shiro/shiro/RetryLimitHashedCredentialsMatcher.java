@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.bocsoft.obss.shiro.entity.UserBean;
 import com.bocsoft.obss.shiro.mapper.UserMapper;
-import com.bocsoft.obss.shiro.redis.RedisUtil;
+import com.bocsoft.obss.common.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;

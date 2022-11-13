@@ -1,6 +1,7 @@
 
 spring:
-  profiles: dev
+  profiles:
+    active: dev
   cloud:
     consul:
       host: localhost #  默认localhost

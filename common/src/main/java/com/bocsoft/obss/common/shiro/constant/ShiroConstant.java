@@ -1,4 +1,4 @@
-package com.bocsoft.obss.shiro.shiro;
+package com.bocsoft.obss.common.shiro.constant;
 
 public class ShiroConstant {
     public static final String HASH_ALGORITHM_NAME = "MD5";     // 加密方式

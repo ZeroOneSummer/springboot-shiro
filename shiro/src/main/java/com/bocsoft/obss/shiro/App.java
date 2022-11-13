@@ -7,8 +7,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @Slf4j
+@EnableAsync  //开启异步，否则 @Async 不生效
 @MapperScan("com.bocsoft.obss.shiro.mapper")
 @SpringBootApplication
 public class App implements ApplicationListener<ContextRefreshedEvent> {

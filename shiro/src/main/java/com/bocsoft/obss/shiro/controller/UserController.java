@@ -4,8 +4,8 @@ import com.bocsoft.obss.shiro.common.Result;
 import com.bocsoft.obss.shiro.entity.UserBean;
 import com.bocsoft.obss.shiro.entity.UserVo;
 import com.bocsoft.obss.shiro.mapper.UserMapper;
-import com.bocsoft.obss.shiro.shiro.ShiroConstant;
-import com.bocsoft.obss.shiro.shiro.ShiroUtil;
+import com.bocsoft.obss.common.shiro.constant.ShiroConstant;
+import com.bocsoft.obss.common.util.ShiroUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,6 +38,7 @@ public class UserController {
     @ApiIgnore
     @GetMapping("login.html")
     public String login(){
+        //进入登录页面
         return "login";
     }
 
@@ -47,10 +48,17 @@ public class UserController {
         return "register";
     }
 
-    @ApiOperation(value = "login", notes = "登录")
+    /**
+     * 提交登录
+     * @param username
+     * @param password
+     * @param rememberme
+     * @return
+     */
+    @ApiOperation(value = "登录", notes = "登录")
     @PostMapping("login")
     public @ResponseBody Result<UserVo> login(
-                @ApiParam(name = "username", value = "用户名", defaultValue = "lisa")
+                @ApiParam(name = "username", value = "用户名", defaultValue = "BOC0001")
                 @RequestParam(value = "username") String username,
                 @ApiParam(name = "password", value = "密码", defaultValue = "123456")
                 @RequestParam(value = "password") String password,
@@ -90,7 +98,7 @@ public class UserController {
         return Result.success(UserVo.builder().username(username).token(webToken).build());
     }
 
-    @ApiOperation(value = "token", notes = "令牌")
+    @ApiOperation(value = "令牌", notes = "用作用户登录后的鉴权令牌")
     @PostMapping("token")
     public String getToken(Model model) {
         Subject subject = SecurityUtils.getSubject();
@@ -104,7 +112,7 @@ public class UserController {
         return "index";
     }
 
-    @ApiOperation(value = "register", notes = "注册")
+    @ApiOperation(value = "注册", notes = "注册")
     @PostMapping("register")
     public String register(@ApiParam(name = "username", value = "用户名", defaultValue = "lisa")
                                                  @RequestParam(value = "username") String username,
@@ -122,7 +130,7 @@ public class UserController {
         return rt > 0 ? "redirect:/login" : "redirect:/register";
     }
 
-    @ApiOperation(value = "logout", notes = "登出")
+    @ApiOperation(value = "登出", notes = "登出")
     @PostMapping("logout")
     public @ResponseBody Result<String> logout() {
         Subject subject = SecurityUtils.getSubject();
@@ -139,7 +147,7 @@ public class UserController {
     }
 
     @RequiresPermissions("delete")
-    @ApiOperation(value = "del", notes = "权限测试-del")
+    @ApiOperation(value = "删除", notes = "权限测试-del")
     @PostMapping("del")
     public @ResponseBody Result<String> del() {
         log.info("权限测试-del, ok!");

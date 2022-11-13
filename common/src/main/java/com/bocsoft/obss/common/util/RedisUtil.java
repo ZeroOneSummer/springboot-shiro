@@ -1,4 +1,4 @@
-package com.bocsoft.obss.shiro.redis;
+package com.bocsoft.obss.common.util;
 
 import org.apache.shiro.dao.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;

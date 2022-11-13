@@ -1,4 +1,4 @@
-package com.bocsoft.obss.shiro.redis;
+package com.bocsoft.obss.common.redis;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.cache.Cache;
@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * redisManager
- *  shiro Cache -> RedisCache(redisTemplate) -> RedisCacheManager(shiro CacheManager) -> SecurityManager
+ * shiro Cache -> RedisCache(redisTemplate) -> RedisCacheManager(shiro CacheManager) -> SecurityManager
  */
 @Slf4j
 public class RedisCacheManager implements CacheManager {

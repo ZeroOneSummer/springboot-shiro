@@ -1,7 +1,8 @@
-package com.bocsoft.obss.shiro.redis;
+package com.bocsoft.obss.common.redis;
 
-import com.bocsoft.obss.shiro.exceiption.PrincipalIdNullException;
-import com.bocsoft.obss.shiro.exceiption.PrincipalInstanceException;
+import com.bocsoft.obss.common.exceiption.PrincipalIdNullException;
+import com.bocsoft.obss.common.exceiption.PrincipalInstanceException;
+import com.bocsoft.obss.common.util.RedisUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

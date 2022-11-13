@@ -1,7 +1,7 @@
 package com.bocsoft.obss.shiro.shiro;
 
 import com.bocsoft.obss.shiro.entity.UserBean;
-import com.bocsoft.obss.shiro.redis.RedisUtil;
+import com.bocsoft.obss.common.util.RedisUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shiro.session.Session;
@@ -20,6 +20,9 @@ import java.io.Serializable;
 import java.util.Deque;
 import java.util.LinkedList;
 
+/**
+ * 同一个账号只能一个人使用，否则踢人
+ */
 @Setter
 @Getter
 public class KickoutSessionControlFilter extends AccessControlFilter {

@@ -16,12 +16,18 @@
     </properties>
 
     <dependencies>
+        <!-- shiro-common -->
+        <dependency>
+            <groupId>com.bocsoft.boss</groupId>
+            <artifactId>common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- zuul -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>

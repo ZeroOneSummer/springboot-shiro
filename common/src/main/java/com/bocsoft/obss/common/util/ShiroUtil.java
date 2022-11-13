@@ -1,4 +1,4 @@
-package com.bocsoft.obss.shiro.shiro;
+package com.bocsoft.obss.common.util;
 
 import java.util.Random;
 

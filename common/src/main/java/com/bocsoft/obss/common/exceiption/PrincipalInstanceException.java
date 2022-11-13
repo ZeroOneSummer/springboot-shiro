@@ -1,4 +1,4 @@
-package com.bocsoft.obss.shiro.exceiption;
+package com.bocsoft.obss.common.exceiption;
 
 public class PrincipalInstanceException extends RuntimeException {
     private static final String MESSAGE = "We need a field to identify this Cache Object in Redis. "

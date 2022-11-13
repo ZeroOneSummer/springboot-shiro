@@ -1,5 +1,6 @@
-package com.bocsoft.obss.shiro.redis;
+package com.bocsoft.obss.common.redis;
 
+import com.bocsoft.obss.common.util.SerializeUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -17,10 +18,11 @@ public class RedisConfig {
         //防止中文乱码
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-//        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        redisTemplate.setValueSerializer(new SerializeUtils());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new SerializeUtils());
+        //redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        //使用自定义序列化对象
+        redisTemplate.setValueSerializer(new SerializeUtil());
+        redisTemplate.setHashValueSerializer(new SerializeUtil());
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         //redisTemplate.setEnableTransationSupport(true);
         return redisTemplate;

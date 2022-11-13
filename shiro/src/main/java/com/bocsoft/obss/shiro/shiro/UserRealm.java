@@ -18,8 +18,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * 用户领域
+ * 加入到spring容器后就能在SecurityManager形参内自动注入
+ */
 @Component
-public class CustomRealm extends AuthorizingRealm {
+public class UserRealm extends AuthorizingRealm {
 
     @Autowired
     UserMapper userMapper;

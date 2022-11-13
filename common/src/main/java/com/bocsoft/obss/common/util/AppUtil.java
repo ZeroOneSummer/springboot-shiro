@@ -1,18 +1,22 @@
-package com.bocsoft.obss.shiro.shiro;
+package com.bocsoft.obss.common.util;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
 
-@Component
+/**
+ * 获取spring上下文工具类
+ */
+@Deprecated
 public class AppUtil implements ApplicationContextAware {
 
     private static ApplicationContext context;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        context = applicationContext;
+        if (applicationContext == null) {
+            AppUtil.context = applicationContext;
+        }
     }
 
     public static ApplicationContext getApplicationContext() {
@@ -23,6 +27,10 @@ public class AppUtil implements ApplicationContextAware {
      * 根据工厂中的类名获取类实例
      */
     public static <T> T getBean(Class<T> tClass){
-        return (T)getApplicationContext().getBean(tClass.getSimpleName());
+        return getApplicationContext().getBean(tClass);
+    }
+
+    public static Object getBean(String name){
+        return getApplicationContext().getBean(name);
     }
 }

@@ -1,4 +1,4 @@
-package com.bocsoft.obss.shiro.shiro;
+package com.bocsoft.obss.common.shiro.session;
 
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.SessionListener;
