@@ -1,6 +1,7 @@
 package com.bocsoft.obss.shiro.controller;
 
-import com.bocsoft.obss.shiro.common.Result;
+import com.bocsoft.obss.common.bean.Result;
+import com.bocsoft.obss.shiro.entity.LoginTokenBean;
 import com.bocsoft.obss.shiro.entity.UserBean;
 import com.bocsoft.obss.shiro.entity.UserVo;
 import com.bocsoft.obss.shiro.mapper.UserMapper;
@@ -62,14 +63,16 @@ public class UserController {
                 @RequestParam(value = "username") String username,
                 @ApiParam(name = "password", value = "密码", defaultValue = "123456")
                 @RequestParam(value = "password") String password,
+                @ApiParam(name = "bankno", value = "银行号", defaultValue = "105")
+                @RequestParam(value = "bankno") String bankno,
                 @RequestParam(value = "rememberme", required = false) Boolean rememberme) {
 
-        //创建一个shiro的Subject对象，利用这个对象来完成用户的登录认证
+        //创建一个shiro的Subject对象token，利用这个对象来完成用户的登录认证
         Subject subject = SecurityUtils.getSubject();
         //防止重复登录
         subject.logout();
         //创建一个用户账号和密码的Token对象，并设置用户输入的账号和密码
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+        LoginTokenBean token = new LoginTokenBean(username, password, bankno);
         //记住我
         if (rememberme != null && rememberme) {
             token.setRememberMe(rememberme);
@@ -95,7 +98,7 @@ public class UserController {
         }
         //获取sessionId作为token返回给前端(需关闭向页面发生cookie)
         String webToken = subject.getSession().getId().toString();
-        return Result.success(UserVo.builder().username(username).token(webToken).build());
+        return Result.success(UserVo.builder().username(username).token(webToken).bankno(bankno).build());
     }
 
     @ApiOperation(value = "令牌", notes = "用作用户登录后的鉴权令牌")
@@ -117,13 +120,16 @@ public class UserController {
     public String register(@ApiParam(name = "username", value = "用户名", defaultValue = "lisa")
                                                  @RequestParam(value = "username") String username,
                                                  @ApiParam(name = "password", value = "密码", defaultValue = "123456")
-                                                 @RequestParam(value = "password") String password) {
+                                                 @RequestParam(value = "password") String password,
+                                                 @ApiParam(name = "bankno", value = "银行号", defaultValue = "105")
+                                                 @RequestParam(value = "bankno") String bankno) {
         String salt = ShiroUtil.getSalt(ShiroConstant.SALT_LENGTH);
         String hexPassword = new SimpleHash(ShiroConstant.HASH_ALGORITHM_NAME, password, salt, ShiroConstant.HASH_ITERATORS).toString();
         int rt = userMapper.insert(UserBean.builder()
                         .username(username)
                         .password(hexPassword)
                         .salt(salt)
+                        .bankNo(bankno)
                         .roles("visitor")
                         .perms("query")
                         .build());

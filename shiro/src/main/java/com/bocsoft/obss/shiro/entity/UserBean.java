@@ -27,6 +27,9 @@ public class UserBean implements Serializable {
 
     private String salt;
 
+    @TableField(value = "BANK_NO")
+    private String bankNo;
+
     private String roles;
 
     private String perms;

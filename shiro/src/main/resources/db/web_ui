@@ -8,4 +8,4 @@ http://localhost:9090/druid                 root/root
 http://localhost:9090/swagger-ui.html       root/root
 
 4.登录页面
-http://localhost:9090/user/login.html       zhang/123456
+http://localhost:9090/user/login.html       BOC0001/123456

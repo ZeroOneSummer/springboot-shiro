@@ -9,5 +9,6 @@ import lombok.*;
 @Builder
 public class UserVo {
     private String username;
+    private String bankno;
     private String token;
 }

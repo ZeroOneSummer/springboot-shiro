@@ -1,4 +1,4 @@
-package com.bocsoft.obss.shiro.common;
+package com.bocsoft.obss.common.bean;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

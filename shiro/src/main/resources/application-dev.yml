@@ -129,7 +129,7 @@ config:
 shiro:
   enabled: true
   annotation:
-    enable: true
+    enabled: true
   session:
     prefix: 'shiro:session:'
     timeout: 30

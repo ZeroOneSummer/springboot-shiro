@@ -1,4 +1,4 @@
-package com.bocsoft.obss.common.shiro.config;
+package com.bocsoft.obss.common.shiro.config.web;
 
 import lombok.Getter;
 import lombok.Setter;

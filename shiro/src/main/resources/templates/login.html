@@ -11,6 +11,7 @@
         <form th:action="@{/user/login}" th:method="post">
             用户名：<input type="text" name="username"/><br/>
             密码：<input type="password" name="password"/><br/>
+            银行号：<input type="text" name="bankno" maxlength="3" minlength="3"/><br/>
             <input type="checkbox" name="rememberme" value="记住我"/>记住我
             <input type="submit" value="登录"/>
         </form>

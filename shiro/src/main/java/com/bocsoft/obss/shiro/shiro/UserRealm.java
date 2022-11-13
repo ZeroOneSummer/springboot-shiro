@@ -2,6 +2,7 @@ package com.bocsoft.obss.shiro.shiro;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.bocsoft.obss.shiro.entity.LoginTokenBean;
 import com.bocsoft.obss.shiro.entity.UserBean;
 import com.bocsoft.obss.shiro.mapper.UserMapper;
 import org.apache.shiro.authc.*;
@@ -13,9 +14,14 @@ import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -24,6 +30,7 @@ import java.util.Set;
  */
 @Component
 public class UserRealm extends AuthorizingRealm {
+    private static final String LOGIN_BANK_NO = "shiro:login:bankno";
 
     @Autowired
     UserMapper userMapper;
@@ -31,9 +38,11 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         String username = (String) principalCollection.getPrimaryPrincipal();
+        String bankno = (String) getSession().getAttribute(LOGIN_BANK_NO);
         //查询DB
         LambdaQueryWrapper<UserBean> query = Wrappers.lambdaQuery();
         query.eq(UserBean::getUsername, username);
+        query.eq(UserBean::getBankNo, bankno);
         UserBean user = userMapper.selectOne(query);
         if (user == null) {
             throw new UnknownAccountException();
@@ -58,12 +67,16 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         //将AuthenticationToken强转成UsernamePasswordToken 这样获取账号和密码更加的方便
-        UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
+        LoginTokenBean token = (LoginTokenBean) authenticationToken;
         //获取用户在浏览器中输入的账号
         String username = token.getUsername();
+        String bankno = token.getBankNo();
+        //鉴权时取出
+        getSession().setAttribute(LOGIN_BANK_NO, bankno);
         //查询db
         LambdaQueryWrapper<UserBean> query = Wrappers.lambdaQuery();
         query.eq(UserBean::getUsername, username);
+        query.eq(UserBean::getBankNo, bankno);
         UserBean user = userMapper.selectOne(query);
         if (user == null) {
             //没有返回登录用户名, 自动抛出UnknownAccountException异常
@@ -113,5 +126,10 @@ public class UserRealm extends AuthorizingRealm {
     public void clearAllCache() {
         clearAllCachedAuthenticationInfo();
         clearAllCachedAuthorizationInfo();
+    }
+
+    private HttpSession getSession(){
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.currentRequestAttributes())).getRequest();
+        return request.getSession();
     }
 }

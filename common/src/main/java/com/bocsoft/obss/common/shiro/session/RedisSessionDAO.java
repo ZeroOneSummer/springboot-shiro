@@ -1,8 +1,8 @@
 package com.bocsoft.obss.common.shiro.session;
 
-import com.bocsoft.obss.common.shiro.config.ShiroProperties;
-import com.bocsoft.obss.common.util.SerializeUtil;
+import com.bocsoft.obss.common.shiro.config.web.ShiroProperties;
 import com.bocsoft.obss.common.util.RedisUtil;
+import com.bocsoft.obss.common.util.SerializeUtil;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.session.Session;
@@ -11,7 +11,6 @@ import org.apache.shiro.session.mgt.eis.AbstractSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
-import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -21,21 +20,23 @@ import java.util.Set;
 /**
  * session存放在redis缓存中
  */
-@Component
 @Setter
 @Slf4j
 public class RedisSessionDAO extends AbstractSessionDAO {
 
     private static final RedisSerializer redisSerializer = new SerializeUtil();
-//    @Autowired
+
+    @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
     private ShiroProperties shiroProperties;
 
     //由于shiro的类无法使用自动注入，只能通过构造方法传进来
-    public RedisSessionDAO(RedisUtil redisUtil, ShiroProperties shiroProperties) {
-        this.redisUtil = redisUtil;
-        this.shiroProperties = shiroProperties;
-    }
+//    public RedisSessionDAO(RedisUtil redisUtil, ShiroProperties shiroProperties) {
+//        this.redisUtil = redisUtil;
+//        this.shiroProperties = shiroProperties;
+//    }
 
     @Override
     public void update(Session session) throws UnknownSessionException {
