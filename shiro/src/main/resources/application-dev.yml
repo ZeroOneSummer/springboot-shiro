@@ -72,6 +72,10 @@ spring:
   thymeleaf:
     cache: false
     enabled: true
+  # devtools
+  devtools:
+    restart:
+      enabled: true
   # Redis配置
   redis:
     database: 1
@@ -88,7 +92,7 @@ spring:
 
 ## mybatis
 mybatis-plus:
-  mapper-locations: classpath:/mapper/**/*.xml
+  mapper-locations: classpath*:/mapper/**/*.xml
   type-aliases-package: com.bocsoft.obss.shiro.entity
   global-config:
     db-config:

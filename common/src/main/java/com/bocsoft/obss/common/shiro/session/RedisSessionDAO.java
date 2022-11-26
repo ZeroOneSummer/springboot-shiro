@@ -1,20 +1,22 @@
 package com.bocsoft.obss.common.shiro.session;
 
+import com.bocsoft.obss.common.serializable.RedisPrincipalCollection;
+import com.bocsoft.obss.common.serializable.SerializableSession;
 import com.bocsoft.obss.common.shiro.config.web.ShiroProperties;
 import com.bocsoft.obss.common.util.RedisUtil;
-import com.bocsoft.obss.common.util.SerializeUtil;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.UnknownSessionException;
 import org.apache.shiro.session.mgt.eis.AbstractSessionDAO;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -24,19 +26,11 @@ import java.util.Set;
 @Slf4j
 public class RedisSessionDAO extends AbstractSessionDAO {
 
-    private static final RedisSerializer redisSerializer = new SerializeUtil();
-
     @Autowired
     private RedisUtil redisUtil;
 
     @Autowired
     private ShiroProperties shiroProperties;
-
-    //由于shiro的类无法使用自动注入，只能通过构造方法传进来
-//    public RedisSessionDAO(RedisUtil redisUtil, ShiroProperties shiroProperties) {
-//        this.redisUtil = redisUtil;
-//        this.shiroProperties = shiroProperties;
-//    }
 
     @Override
     public void update(Session session) throws UnknownSessionException {
@@ -44,7 +38,19 @@ public class RedisSessionDAO extends AbstractSessionDAO {
             log.error("session or session id is null");
             throw new UnknownSessionException("session or session id is null");
         }
-        redisUtil.set(shiroProperties.getSessionPrefix() + session.getId(), redisSerializer.serialize(session), (session.getTimeout() / 1000L));
+        //序列化session，重写SessionFactory使用SerializableSession
+        if (session instanceof SerializableSession) {
+            SerializableSession serializableSession = (SerializableSession) session;
+            Iterator<Object> iterator = serializableSession.getAttributeKeys().iterator();
+            while (iterator.hasNext()){
+                Object key = iterator.next();
+                Object value = serializableSession.getAttribute(key);
+                if (value instanceof PrincipalCollection){
+                    serializableSession.setAttribute(key, new RedisPrincipalCollection((PrincipalCollection) value));
+                }
+            }
+            redisUtil.set(shiroProperties.getSessionPrefix() + session.getId(), session, (session.getTimeout() / 1000L));
+        }
     }
 
     @Override
@@ -67,7 +73,7 @@ public class RedisSessionDAO extends AbstractSessionDAO {
             Set<String> keys = redisUtil.scan(shiroProperties.getSessionPrefix() + "*");
             if (keys != null && keys.size() > 0) {
                 for (String key : keys) {
-                    Session session = (Session) redisSerializer.deserialize((byte[])redisUtil.get(key));
+                    Session session = (Session) redisUtil.get(key);
                     sessions.add(session);
                 }
             }
@@ -84,8 +90,7 @@ public class RedisSessionDAO extends AbstractSessionDAO {
             throw new UnknownSessionException("session is null");
         }
         Serializable sessionId = this.generateSessionId(session);
-        super.assignSessionId(session, sessionId);
-        //失效时间
+        this.assignSessionId(session, sessionId);
         session.setTimeout(shiroProperties.getSessionTimeout() * 60 * 1000);
         update(session);
         return sessionId;
@@ -98,12 +103,16 @@ public class RedisSessionDAO extends AbstractSessionDAO {
             return null;
         }
         Session session = null;
-        log.debug("read session from redis");
         try {
-            session = (Session) redisSerializer.deserialize((byte[])redisUtil.get(shiroProperties.getSessionPrefix() + sessionId));
+            session = (Session) redisUtil.get(shiroProperties.getSessionPrefix() + sessionId);
         } catch (SerializationException e) {
             log.error("read session error. settionId=" + sessionId);
         }
         return session;
+    }
+
+    @Override
+    protected void assignSessionId(Session session, Serializable sessionId) {
+        ((SerializableSession)session).setId(sessionId);
     }
 }

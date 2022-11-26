@@ -25,10 +25,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 用户领域
@@ -100,48 +97,24 @@ public class UserRealm extends AuthorizingRealm {
     }
 
     /**
-     * 重写方法,清除当前用户的的 授权缓存
+     * 清除缓存
      */
-    @Override
-    public void clearCachedAuthorizationInfo(PrincipalCollection principals) {
-        super.clearCachedAuthorizationInfo(principals);
+    public void clearCache() {
+        this.getAuthorizationCache().clear();
+        this.getAuthenticationCache().clear();
     }
 
     /**
-     * 重写方法，清除当前用户的 认证缓存
+     * 获取权限
      */
-    @Override
-    public void clearCachedAuthenticationInfo(PrincipalCollection principals) {
-        super.clearCachedAuthenticationInfo(principals);
-    }
-
-    @Override
-    public void clearCache(PrincipalCollection principals) {
-        super.clearCache(principals);
+    public Collection<String> authorInfos(PrincipalCollection principalCollection) {
+        return this.doGetAuthorizationInfo(principalCollection).getStringPermissions();
     }
 
     /**
-     * 自定义方法：清除所有 授权缓存
+     * 获取session
+     * @return
      */
-    public void clearAllCachedAuthorizationInfo() {
-        getAuthorizationCache().clear();
-    }
-
-    /**
-     * 自定义方法：清除所有 认证缓存
-     */
-    public void clearAllCachedAuthenticationInfo() {
-        getAuthenticationCache().clear();
-    }
-
-    /**
-     * 自定义方法：清除所有的  认证缓存  和 授权缓存
-     */
-    public void clearAllCache() {
-        clearAllCachedAuthenticationInfo();
-        clearAllCachedAuthorizationInfo();
-    }
-
     private HttpSession getSession() {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.currentRequestAttributes())).getRequest();
         return request.getSession();

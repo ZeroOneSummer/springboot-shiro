@@ -3,14 +3,13 @@ package com.bocsoft.obss.common.util;
 import org.apache.shiro.dao.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.Cursor;
-import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.core.*;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +21,66 @@ public class RedisUtil {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
+    private ValueOperations<String, Object> valueOperations;
+
+    private HashOperations<String, String, Object> hashOperations;
+
+    @PostConstruct
+    private void initOps(){
+        valueOperations = redisTemplate.opsForValue();
+        hashOperations = redisTemplate.opsForHash();
+    }
+
+    //=============================== valueOperations =======================================
+    /**
+     * 普通缓存获取
+     */
+    public Object get(String key) {
+        return valueOperations.get(key);
+    }
+
+    /**
+     * 普通缓存放入
+     */
+    public void set(String key, Object value) {
+        valueOperations.set(key, value);
+    }
+
+    /**
+     * 普通缓存放入并设置时间
+     */
+    public void set(String key, Object value, long time) {
+        if (time > 0) {
+            valueOperations.set(key, value, time, TimeUnit.SECONDS);
+        } else {
+            set(key, value);
+        }
+    }
+
+
+    //=============================== hashOperations =======================================
+    public void hashPutAll(String key, Map<? extends String, ?>val){
+        hashOperations.putAll(key, val);
+    }
+
+    public void hashPut(String key, String hkey, Object val){
+        hashOperations.put(key, hkey, val);
+    }
+
+    public Object hashGet(String key, Object val){
+        return hashOperations.get(key, val);
+    }
+
+    public Boolean hasHashKey(String key, Object val){
+        return hashOperations.hasKey(key, val);
+    }
+
+    public Set<String> hashKeys(String key){
+        return hashOperations.keys(key);
+    }
+
+
+    //=============================== redisTemplate =======================================
     /**
      * 指定缓存失效时间
      */
@@ -55,32 +114,6 @@ public class RedisUtil {
      */
     public void del(Collection keys) {
         redisTemplate.delete(keys);
-    }
-
-
-    /**
-     * 普通缓存获取
-     */
-    public Object get(String key) {
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    /**
-     * 普通缓存放入
-     */
-    public void set(String key, Object value) {
-        redisTemplate.opsForValue().set(key, value);
-    }
-
-    /**
-     * 普通缓存放入并设置时间
-     */
-    public void set(String key, Object value, long time) {
-        if (time > 0) {
-            redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
-        } else {
-            set(key, value);
-        }
     }
 
     /**

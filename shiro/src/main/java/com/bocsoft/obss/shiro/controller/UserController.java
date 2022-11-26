@@ -1,12 +1,13 @@
 package com.bocsoft.obss.shiro.controller;
 
 import com.bocsoft.obss.common.bean.Result;
+import com.bocsoft.obss.common.shiro.constant.ShiroConstant;
+import com.bocsoft.obss.common.util.ShiroUtil;
 import com.bocsoft.obss.shiro.entity.LoginTokenBean;
 import com.bocsoft.obss.shiro.entity.UserBean;
 import com.bocsoft.obss.shiro.entity.UserVo;
 import com.bocsoft.obss.shiro.mapper.UserMapper;
-import com.bocsoft.obss.common.shiro.constant.ShiroConstant;
-import com.bocsoft.obss.common.util.ShiroUtil;
+import com.bocsoft.obss.shiro.shiro.UserRealm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -15,7 +16,6 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -27,14 +27,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
-@Api(value = "用户模块", description = "用户模块")
+@Api(tags = "用户模块")
 @Controller
 @RequestMapping("user")
 public class UserController {
 
     @Autowired
     UserMapper userMapper;
+
+    @Autowired
+    UserRealm userRealm;
 
     @ApiIgnore
     @GetMapping("login.html")
@@ -56,7 +63,7 @@ public class UserController {
      * @param rememberme
      * @return
      */
-    @ApiOperation(value = "登录", notes = "登录")
+    @ApiOperation("登录")
     @PostMapping("login")
     public @ResponseBody Result<UserVo> login(
                 @ApiParam(name = "username", value = "用户名", defaultValue = "BOC0001")
@@ -117,23 +124,19 @@ public class UserController {
 
     @ApiOperation(value = "注册", notes = "注册")
     @PostMapping("register")
-    public String register(@ApiParam(name = "username", value = "用户名", defaultValue = "lisa")
-                           @RequestParam(value = "username") String username,
-                           @ApiParam(name = "password", value = "密码", defaultValue = "123456")
-                           @RequestParam(value = "password") String password,
-                           @ApiParam(name = "bankno", value = "银行号", defaultValue = "105")
-                           @RequestParam(value = "bankno") String bankno) {
+    public String register(@Valid @RequestBody UserBean userBean) {
         String salt = ShiroUtil.getSalt(ShiroConstant.SALT_LENGTH);
-        String hexPassword = new SimpleHash(ShiroConstant.HASH_ALGORITHM_NAME, password, salt, ShiroConstant.HASH_ITERATORS).toString();
+        String hexPassword = new SimpleHash(ShiroConstant.HASH_ALGORITHM_NAME,
+                userBean.getPassword(), salt, ShiroConstant.HASH_ITERATORS).toString();
         int rt = userMapper.insert(UserBean.builder()
-                        .username(username)
+                        .username(userBean.getUsername())
                         .password(hexPassword)
                         .salt(salt)
-                        .bankNo(bankno)
+                        .bankNo(userBean.getBankNo())
                         .roles("visitor")
                         .perms("query")
                         .build());
-        return rt > 0 ? "redirect:/user/login.html" : "redirect:/user//register.html";
+        return rt > 0 ? "redirect:/user/login.html" : "redirect:/user/register.html";
     }
 
     @ApiOperation(value = "登出", notes = "登出")
@@ -142,6 +145,14 @@ public class UserController {
         Subject subject = SecurityUtils.getSubject();
         subject.logout();
         return Result.success();
+    }
+
+    @ApiOperation("用户权限")
+    @PostMapping("getAuthorList")
+    public @ResponseBody Result<List<String>> getAuthorList() {
+        Subject subject = SecurityUtils.getSubject();
+        List<String> authors = new ArrayList<>(userRealm.authorInfos(subject.getPrincipals()));
+        return Result.success(authors);
     }
 
     @RequiresRoles(value = {"admin", "teller"}, logical = Logical.OR)

@@ -7,6 +7,7 @@ package com.bocsoft.obss.common.shiro.config.web;
 
 import com.bocsoft.obss.common.redis.RedisCacheManager;
 import com.bocsoft.obss.common.shiro.session.RedisSessionDAO;
+import com.bocsoft.obss.common.shiro.session.RedisSessionFactory;
 import com.bocsoft.obss.common.shiro.session.ShiroSessionListener;
 import com.bocsoft.obss.common.shiro.session.ShiroSessionManager;
 import com.bocsoft.obss.common.util.RedisUtil;
@@ -47,13 +48,6 @@ public class ShiroWebAutoConfiguration extends AbstractShiroWebConfiguration {
         return super.authorizer();
     }
 
-//    @Bean
-//    @ConditionalOnMissingBean
-//    @Override
-//    protected SessionFactory sessionFactory() {
-//        return super.sessionFactory();
-//    }
-
     @Bean
     @ConditionalOnMissingBean
     @Override
@@ -72,6 +66,8 @@ public class ShiroWebAutoConfiguration extends AbstractShiroWebConfiguration {
     protected SessionManager sessionManager() {
         //重写getSessionId方法，优先从header拿
         ShiroSessionManager sessionManager = new ShiroSessionManager();
+        //设置自定义SessionFactory
+        sessionManager.setSessionFactory(new RedisSessionFactory());
         //配置监听
         sessionManager.setSessionListeners(Collections.singletonList(new ShiroSessionListener()));
         //禁用cookie，不向浏览器发送cookie

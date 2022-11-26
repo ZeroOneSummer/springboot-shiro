@@ -7,9 +7,9 @@ spring:
       #host: 220.147.130:8500,10.220.147.131:8500 # 集群配置
       host: localhost                         #  默认localhost
       port: 8500                              # 默认8500
-      enabled: false                           # 是否启动consul
+      enabled: false                          # 是否启动consul
       discovery:
-        enabled: true                         # 启用服务发现
+        enabled: true                         # 启用服务
         register: true                        # 启用服务注册
         deregister: true                      # 服务停止时取消注册，页面会消失对应注册服务
         prefer-ip-address: true               # 显示ip地址
