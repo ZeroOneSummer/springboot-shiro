@@ -24,6 +24,6 @@ public class App implements ApplicationListener<ContextRefreshedEvent> {
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        log.info("=> ShiroApp 启动成功! port: {}", port);
+        log.info("=> {} 启动成功! port: {}", this.getClass().getName() ,port);
     }
 }

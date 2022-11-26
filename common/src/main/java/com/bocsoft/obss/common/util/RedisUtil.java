@@ -7,10 +7,7 @@ import org.springframework.data.redis.core.*;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,11 +20,14 @@ public class RedisUtil {
 
     private ValueOperations<String, Object> valueOperations;
 
+    private ListOperations<String, Object> listOperations;
+
     private HashOperations<String, String, Object> hashOperations;
 
     @PostConstruct
     private void initOps(){
         valueOperations = redisTemplate.opsForValue();
+        listOperations = redisTemplate.opsForList();
         hashOperations = redisTemplate.opsForHash();
     }
 
@@ -50,11 +50,24 @@ public class RedisUtil {
      * 普通缓存放入并设置时间
      */
     public void set(String key, Object value, long time) {
+        set(key, value, time, TimeUnit.SECONDS);
+    }
+
+    public void set(String key, Object value, long time, TimeUnit timeUnit) {
         if (time > 0) {
-            valueOperations.set(key, value, time, TimeUnit.SECONDS);
+            valueOperations.set(key, value, time, timeUnit);
         } else {
             set(key, value);
         }
+    }
+
+    //=============================== listOperations =======================================
+    public List<Object> range(String key) {
+        return listOperations.range(key, 0, -1);
+    }
+
+    public Long leftPush(String key, Object val) {
+        return listOperations.leftPush(key, val);
     }
 
 

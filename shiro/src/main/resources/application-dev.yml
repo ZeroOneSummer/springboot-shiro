@@ -119,27 +119,39 @@ logging:
 
 
 ## 其它配置
-config:
-  # JWT认证加密私钥(Base64加密)
-  encrypt-jwtKey: U0JBUElOENhspJrzkyNjQ1NA
-  # AccessToken过期时间(秒)
-  accessToken-expireTime: 600
-  # RefreshToken过期时间(秒)
-  refreshToken-expireTime: 604800
-  # Shiro缓存过期时间(秒)(一般设置与AccessToken过期时间一致) 此处CustomCache读取失败，待解决
-  shiro-cache-expireTime: 600
+#config:
+#  # JWT认证加密私钥(Base64加密)
+#  encrypt-jwtKey: U0JBUElOENhspJrzkyNjQ1NA
+#  # AccessToken过期时间(秒)
+#  accessToken-expireTime: 600
+#  # RefreshToken过期时间(秒)
+#  refreshToken-expireTime: 604800
+#  # Shiro缓存过期时间(秒)(一般设置与AccessToken过期时间一致) 此处CustomCache读取失败，待解决
+#  shiro-cache-expireTime: 600
 
 # shiro
 shiro:
-  enabled: true
+  enabled: true               # 权限认证开关
   annotation:
-    enabled: true
+    enabled: true             # 权限注解生效开关
   session:
-    prefix: 'shiro:session:'
+    prefix: 'shiro:session:'  # 会话缓存
     timeout: 30
   cache:
-    prefix: 'shiro:cache:'
+    prefix: 'shiro:cache:'    # 权限缓存
     timeout: 30
+  lock:
+    prefix: 'shiro:lock:'      # 锁定用户
+    timeout: 30                # 锁定时间，分钟
+  kickout:
+    prefix: 'shiro:kickout:'   # 在线用户，踢人
+  user:
+    error-limit: 3            # 密码错误n次，锁定账号
+    repetition: 5             # 修改密码不能和前n次相同
+    overdue-day: 90           # 密码过期时间，天
+  redis:
+    init:
+      switch: true            # 铺底开关
 
 # actuator健康检查
 management:

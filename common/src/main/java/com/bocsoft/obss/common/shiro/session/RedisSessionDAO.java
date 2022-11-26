@@ -21,6 +21,7 @@ import java.util.Set;
 
 /**
  * 【session存放在redis缓存中】
+ * RedisPrincipalCollection -> SerializableSession -> RedisSessionFactory、RedisSessionDAO -> SessionManager
  */
 @Setter
 @Slf4j

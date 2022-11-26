@@ -1,22 +1,21 @@
 package com.bocsoft.obss.shiro.shiro;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.bocsoft.obss.common.shiro.constant.ShiroConstant;
+import com.bocsoft.obss.common.enums.UserStatusEnum;
+import com.bocsoft.obss.common.util.RedisUtil;
 import com.bocsoft.obss.shiro.entity.LoginTokenBean;
 import com.bocsoft.obss.shiro.entity.UserBean;
-import com.bocsoft.obss.shiro.mapper.UserMapper;
+import com.bocsoft.obss.shiro.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
-import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -26,6 +25,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 用户领域
@@ -36,21 +36,22 @@ import java.util.*;
 @Slf4j
 @Component
 public class UserRealm extends AuthorizingRealm {
-    private static final String LOGIN_BANK_NO = "shiro:login:bankno";
+    public static final String LOGIN_BANK_NO = "shiro:login:bankno";
 
     @Autowired
-    UserMapper userMapper;
+    UserService userService;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        String username = (String) principalCollection.getPrimaryPrincipal();
-        String bankno = (String) getSession().getAttribute(LOGIN_BANK_NO);
+        String userCode = (String) principalCollection.getPrimaryPrincipal();
+        String bankNo = (String) getSession().getAttribute(LOGIN_BANK_NO);
         //查询DB
-        LambdaQueryWrapper<UserBean> query = Wrappers.lambdaQuery();
-        query.eq(UserBean::getUsername, username);
-        query.eq(UserBean::getBankNo, bankno);
-        UserBean user = userMapper.selectOne(query);
+        UserBean user = userService.selectOne(userCode, bankNo);
         if (user == null) {
+            log.error("用户{}不存在！", userCode);
             throw new UnknownAccountException();
         }
         String roles = user.getRoles();
@@ -73,27 +74,39 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         //将AuthenticationToken强转成UsernamePasswordToken 这样获取账号和密码更加的方便
-        LoginTokenBean token = (LoginTokenBean) authenticationToken;
+        LoginTokenBean loginToken = (LoginTokenBean) authenticationToken;
         //获取用户在浏览器中输入的账号
-        String username = token.getUsername();
-        String bankno = token.getBankNo();
+        String userCode = loginToken.getUsername();
+        String bankNo = loginToken.getBankNo();
         //鉴权时取出
-        getSession().setAttribute(LOGIN_BANK_NO, bankno);
+        getSession().setAttribute(LOGIN_BANK_NO, bankNo);
         //查询db
-        LambdaQueryWrapper<UserBean> query = Wrappers.lambdaQuery();
-        query.eq(UserBean::getUsername, username);
-        query.eq(UserBean::getBankNo, bankno);
-        UserBean user = userMapper.selectOne(query);
+        UserBean user = userService.selectOne(userCode, bankNo);
         if (user == null) {
-            //没有返回登录用户名, 自动抛出UnknownAccountException异常
             log.error("用户不存在!");
             return null;
         }
-        if (user.getStatus() == 1) {
-            log.error("账号已锁定!");
-            throw new LockedAccountException();
+        //是否锁定
+        if (UserStatusEnum.STATUS_LOCKED.getCode().equals(user.getStatus())){
+            //是否需要触发自动解锁用户
+            AtomicInteger retryCount = (AtomicInteger) redisUtil.get(LoginCredentialsMatcher.getLockKey(userCode, bankNo));
+            //已到解锁时间
+            if (retryCount == null){
+                userService.unlockAccount(userCode, bankNo);
+            }else{
+                log.error("账号{}已锁定！", userCode);
+                throw new LockedAccountException();
+            }
         }
-        return new SimpleAccount(username, user.getPassword(), ByteSource.Util.bytes(user.getSalt()), this.getName());
+        return new SimpleAccount(userCode, user.getPassWord(), ByteSource.Util.bytes(user.getSalt()), this.getName());
+    }
+
+    /**
+     * shiro-thymeleaf方言
+     */
+    @Bean
+    public ShiroDialect shiroDialect() {
+        return new ShiroDialect();
     }
 
     /**
@@ -115,29 +128,19 @@ public class UserRealm extends AuthorizingRealm {
      * 获取session
      * @return
      */
-    private HttpSession getSession() {
+    public HttpSession getSession() {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.currentRequestAttributes())).getRequest();
         return request.getSession();
     }
 
     /**
-     * shiro-thymeleaf方言
-     */
-    @Bean
-    public ShiroDialect shiroDialect() {
-        return new ShiroDialect();
-    }
-
-    /**
      * 密码比较器
      */
+    @Autowired
+    @Qualifier("loginCredentialsMatcher")
     @Override
     public void setCredentialsMatcher(CredentialsMatcher credentialsMatcher) {
-        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
-        hashedCredentialsMatcher.setHashAlgorithmName(ShiroConstant.HASH_ALGORITHM_NAME);
-        hashedCredentialsMatcher.setHashIterations(ShiroConstant.HASH_ITERATORS);
-        //是否存储为16进制
-        hashedCredentialsMatcher.setStoredCredentialsHexEncoded(true);
-        super.setCredentialsMatcher(hashedCredentialsMatcher);
+        //加密比较逻辑移到LoginCredentialsMatcher
+        super.setCredentialsMatcher(credentialsMatcher);
     }
 }

@@ -3,6 +3,7 @@ package com.bocsoft.obss.common.shiro.config.web;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,4 +31,30 @@ public class ShiroProperties {
 
     @Value("${shiro.cache.timeout}")
     private long cacheTimeout;
+
+    @Value("${shiro.lock.prefix}")
+    private String lockPrefix;
+
+    @Value("${shiro.lock.timeout}")
+    private long lockTimeout;
+
+    @Value("${shiro.kickout.prefix}")
+    private String kickoutPrefix;
+
+    /**
+     * 用户配置
+     */
+    @Setter
+    @Getter
+    @Configuration
+    public static class UserProperties{
+        @Value("${shiro.user.error-limit:5}")
+        private long errorLimit;
+
+        @Value("${shiro.user.repetition:3}")
+        private long repetition;
+
+        @Value("${shiro.user.overdue-day:30}")
+        private long overdueDay;
+    }
 }

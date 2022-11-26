@@ -123,9 +123,8 @@ public class ShiroWebAutoConfiguration extends AbstractShiroWebConfiguration {
         chainDefinition.addPathDefinition("/druid/**", "anon");
         //h2数据库管理界面
         chainDefinition.addPathDefinition("/h2/**", "anon");
-        //必须放到最后
-        chainDefinition.addPathDefinition("/**", "authc");
-        //如果开启限制同一账号登录,改为 .addPathDefinition("/**", "kickout,user");
+        //必须放到最后, kickout开启限制同一账号登录
+        chainDefinition.addPathDefinition("/**", "authc,kickout");
         return chainDefinition;
     }
 

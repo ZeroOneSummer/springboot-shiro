@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class ShiroSessionManager extends DefaultWebSessionManager {
 
     public static final String TOKEN = "Token";
-    public static final String USERNAME = "username";
+    public static final String USERNAME = "userCode";
 
     /**
      * 从请求头获取token或直接从redis里获取

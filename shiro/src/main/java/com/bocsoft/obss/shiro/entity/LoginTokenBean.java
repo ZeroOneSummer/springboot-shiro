@@ -2,6 +2,9 @@ package com.bocsoft.obss.shiro.entity;
 
 import org.apache.shiro.authc.UsernamePasswordToken;
 
+/**
+ * 登录token，方便携带其他参数
+ */
 public class LoginTokenBean extends UsernamePasswordToken {
     private String bankNo;
 
@@ -13,8 +16,8 @@ public class LoginTokenBean extends UsernamePasswordToken {
         this.bankNo = bankNo;
     }
 
-    public LoginTokenBean(String username, String password, String bankNo) {
-        super(username, password);
+    public LoginTokenBean(String userCode, String passWord, String bankNo) {
+        super(userCode, passWord);
         this.bankNo = bankNo;
     }
 

@@ -8,7 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class UserVo {
-    private String username;
-    private String bankno;
+    private String userCode;
+    private String bankNo;
     private String token;
+    private Integer pwdStatus;
 }
