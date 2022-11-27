@@ -75,10 +75,10 @@ spring:
   # devtools
   devtools:
     restart:
-      enabled: true
+      enabled: false
   # Redis配置
   redis:
-    database: 1
+    database: 0
     host: localhost
     port: 6379
     password: 123456
@@ -151,7 +151,7 @@ shiro:
     overdue-day: 90           # 密码过期时间，天
   redis:
     init:
-      switch: true            # 铺底开关
+      switch: false            # 铺底开关
 
 # actuator健康检查
 management:

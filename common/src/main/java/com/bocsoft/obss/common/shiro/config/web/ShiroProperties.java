@@ -3,15 +3,12 @@ package com.bocsoft.obss.common.shiro.config.web;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 /**
  * shiro自定义属性
  */
 @Setter
 @Getter
-@Component
 public class ShiroProperties {
 
     @Value("${shiro.enabled}")
@@ -46,7 +43,6 @@ public class ShiroProperties {
      */
     @Setter
     @Getter
-    @Configuration
     public static class UserProperties{
         @Value("${shiro.user.error-limit:5}")
         private long errorLimit;

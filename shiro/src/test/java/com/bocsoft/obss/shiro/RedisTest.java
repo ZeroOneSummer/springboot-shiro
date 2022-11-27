@@ -21,7 +21,7 @@ public class RedisTest extends BaseTest {
     @SneakyThrows
     @Test
     public void redisTest() {
-        UserBean user = UserBean.builder().username("lisa").password("123456").build();
+        UserBean user = UserBean.builder().userCode("lisa").passWord("123456").build();
         redisTemplate.opsForValue().set("zero:obj", user, 30, TimeUnit.SECONDS);
         UserBean obj = (UserBean) redisTemplate.opsForValue().get("zero:obj");
         log.info(JSON.writeValueAsString(obj));

@@ -94,7 +94,7 @@ public class UserRealm extends AuthorizingRealm {
             if (retryCount == null){
                 userService.unlockAccount(userCode, bankNo);
             }else{
-                log.error("账号{}已锁定！", userCode);
+                log.error("用户{}已被锁定！", userCode);
                 throw new LockedAccountException();
             }
         }
@@ -129,6 +129,7 @@ public class UserRealm extends AuthorizingRealm {
      * @return
      */
     public HttpSession getSession() {
+        //SecurityUtils.getSubject().getSession() 和下面是同一个session
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.currentRequestAttributes())).getRequest();
         return request.getSession();
     }

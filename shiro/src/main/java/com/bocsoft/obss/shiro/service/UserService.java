@@ -45,7 +45,7 @@ public class UserService {
         LambdaQueryWrapper<UserBean> query = Wrappers.lambdaQuery();
         query.eq(UserBean::getUserCode, userCode);
         query.eq(UserBean::getBankNo, bankNo);
-        query.eq(UserBean::getStatus, UserStatusEnum.STATUS_EFFECT.getCode());
+        query.ne(UserBean::getStatus, UserStatusEnum.STATUS_INVALID.getCode());
         return userMapper.selectOne(query);
     }
 
@@ -120,7 +120,7 @@ public class UserService {
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean modifPassword(UserBean userBean) {
-        UserBean update = UserBean.builder().passWord(userBean.getPassWord()).build();
+        UserBean update = UserBean.builder().passWord(userBean.getPassWord()).salt(userBean.getSalt()).build();
         LambdaQueryWrapper<UserBean> query = Wrappers.lambdaQuery();
         query.eq(UserBean::getUserCode, userBean.getUserCode());
         query.eq(UserBean::getBankNo, userBean.getBankNo());
@@ -135,8 +135,9 @@ public class UserService {
             long repetition = userProperties.getRepetition();
             PwdHistoryBean pwdHistoryBean = new PwdHistoryBean();
             BeanUtil.copyProperties(userBean, pwdHistoryBean);
-            List<PwdHistoryBean> list = queryPwdList(pwdHistoryBean.getUserCode(), pwdHistoryBean.getBankNo());
+            var2 = pwdHistoryMapper.insert(pwdHistoryBean) > 0;
             //删除多余记录
+            List<PwdHistoryBean> list = queryPwdList(pwdHistoryBean.getUserCode(), pwdHistoryBean.getBankNo());
             if (!CollectionUtils.isEmpty(list) && list.size() > repetition){
                 long id = list.stream().mapToLong(PwdHistoryBean::getId).min().orElse(0L);
                 if (id != 0L){

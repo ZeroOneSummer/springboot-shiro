@@ -28,7 +28,7 @@ public class RedisInitData implements CommandLineRunner {
     @Autowired
     RedisUtil redisUtill;
 
-    @Value("shiro.redis.init.switch:true")
+    @Value("${shiro.redis.init.switch:true}")
     boolean initSwitch;
 
     @Override

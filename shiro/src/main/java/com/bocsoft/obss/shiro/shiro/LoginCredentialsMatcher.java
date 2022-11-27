@@ -63,7 +63,7 @@ public class LoginCredentialsMatcher extends HashedCredentialsMatcher {
             retryCount = (AtomicInteger) redisUtil.get(getLockKey(userCode, bankNo));
             if (retryCount == null) {
                 //如果用户没有登陆过,登陆次数加1 并放入缓存
-                retryCount = new AtomicInteger(0);
+                retryCount = new AtomicInteger(1);
             }
             //超过最大次数
             long errorLimit = userProperties.getErrorLimit();
@@ -72,7 +72,7 @@ public class LoginCredentialsMatcher extends HashedCredentialsMatcher {
                 if (userService.updateStatus(userCode, bankNo, UserStatusEnum.STATUS_LOCKED)) {
                     //设置自动解锁时间，登录时触发解锁
                     long lockTimeout = shiroProperties.getLockTimeout();
-                    redisUtil.set(getLockKey(userCode, bankNo), errorLimit, lockTimeout, TimeUnit.MINUTES);
+                    redisUtil.set(getLockKey(userCode, bankNo), new AtomicInteger((int)errorLimit), lockTimeout, TimeUnit.MINUTES);
                     log.info("超过最大重试次数[{}]，用户[{}]已被锁定，锁定时间[{}]分钟！", errorLimit, userCode, lockTimeout);
                     //抛出用户锁定异常
                     throw new LockedAccountException();

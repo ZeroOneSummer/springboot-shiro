@@ -76,9 +76,8 @@ public class SerializableSession implements ValidatingSession {
     public void setAttribute(Object key, Object value) {
         if (attributes == null) {
             attributes = new HashMap<>();
-        } else {
-            attributes.put(key, value);
         }
+        attributes.put(key, value);
     }
 
     @Override

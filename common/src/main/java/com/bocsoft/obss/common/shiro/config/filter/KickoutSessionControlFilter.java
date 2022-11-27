@@ -3,11 +3,12 @@ package com.bocsoft.obss.common.shiro.config.filter;
 import cn.hutool.json.JSONUtil;
 import com.bocsoft.obss.common.bean.Result;
 import com.bocsoft.obss.common.shiro.config.web.ShiroProperties;
-import com.bocsoft.obss.common.shiro.session.ShiroSessionManager;
 import com.bocsoft.obss.common.util.RedisUtil;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.DefaultSessionKey;
+import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.AccessControlFilter;
 import org.springframework.http.MediaType;
@@ -26,6 +27,7 @@ import java.util.LinkedList;
 /**
  * 同一个账号只能一个人使用，否则踢人
  */
+@Setter
 @Slf4j
 public class KickoutSessionControlFilter extends AccessControlFilter {
 
@@ -41,11 +43,11 @@ public class KickoutSessionControlFilter extends AccessControlFilter {
     private String userCode;
     private String bankNo;
 
-    private ShiroSessionManager sessionManager;
+    private SessionManager sessionManager;
     private RedisUtil redisUtil;
     private ShiroProperties shiroProperties;;
 
-    public KickoutSessionControlFilter(ShiroSessionManager sessionManager, RedisUtil redisUtil, ShiroProperties shiroProperties){
+    public KickoutSessionControlFilter(SessionManager sessionManager, RedisUtil redisUtil, ShiroProperties shiroProperties){
         this.sessionManager = sessionManager;
         this.redisUtil = redisUtil;
         this.shiroProperties = shiroProperties;
@@ -83,7 +85,7 @@ public class KickoutSessionControlFilter extends AccessControlFilter {
 
         Session session = subject.getSession();
         userCode = (String) subject.getPrincipal();
-        bankNo = (String) session.getAttribute("shiro:login:bankno"); //key取AuthorizingRealm.LOGIN_BANK_NO
+        bankNo = (String) session.getAttribute("shiro:login:bankno"); //key取user模块的UserRealm.LOGIN_BANK_NO
         Serializable sessionId = session.getId();
         // 初始化用户的队列放到缓存里
         Deque<Serializable> onlines = (Deque<Serializable>) redisUtil.get(getRedisKickoutKey());

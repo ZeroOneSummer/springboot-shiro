@@ -11,7 +11,6 @@ import com.bocsoft.obss.common.shiro.session.RedisSessionFactory;
 import com.bocsoft.obss.common.shiro.session.ShiroSessionListener;
 import com.bocsoft.obss.common.shiro.session.ShiroSessionManager;
 import com.bocsoft.obss.common.util.RedisUtil;
-import org.apache.shiro.authz.Authorizer;
 import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -34,19 +33,13 @@ import java.util.List;
  * 参考 shiro-spring-boot-web-starter 的 spring.factories
  * 【shiro-web-config】
  */
+//@ConditionalOnClass(WebSubject.class)
 @Configuration
 @ConditionalOnProperty(name = {"shiro.enabled"}, matchIfMissing = true) //没匹配到，默认true
 public class ShiroWebAutoConfiguration extends AbstractShiroWebConfiguration {
 
     @Autowired
     private RedisUtil redisUtil;
-
-    @Bean
-    @ConditionalOnMissingBean(name = "authorizer") //不加authorizer会报找不到
-    @Override
-    protected Authorizer authorizer() {
-        return super.authorizer();
-    }
 
     @Bean
     @ConditionalOnMissingBean
@@ -66,7 +59,7 @@ public class ShiroWebAutoConfiguration extends AbstractShiroWebConfiguration {
     protected SessionManager sessionManager() {
         //重写getSessionId方法，优先从header拿
         ShiroSessionManager sessionManager = new ShiroSessionManager();
-        //设置自定义SessionFactory
+        //sessionFactory
         sessionManager.setSessionFactory(new RedisSessionFactory());
         //配置监听
         sessionManager.setSessionListeners(Collections.singletonList(new ShiroSessionListener()));
@@ -135,3 +128,4 @@ public class ShiroWebAutoConfiguration extends AbstractShiroWebConfiguration {
         return super.shiroUrlPathHelper();
     }
 }
+

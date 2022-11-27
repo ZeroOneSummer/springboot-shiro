@@ -68,15 +68,13 @@ public class UserController {
      */
     @ApiOperation("登录")
     @PostMapping("login")
-    public @ResponseBody
-    Result<UserVo> login(
-            @ApiParam(name = "userCode", value = "用户编号", defaultValue = "BOC0001")
-            @RequestParam(value = "userCode") String userCode,
-            @ApiParam(name = "passWord", value = "密码", defaultValue = "123456")
-            @RequestParam(value = "passWord") String passWord,
-            @ApiParam(name = "bankNo", value = "银行号", defaultValue = "105")
-            @RequestParam(value = "bankNo") String bankNo,
-            @RequestParam(value = "rememberMe", required = false) Boolean rememberMe) {
+    public @ResponseBody Result<UserVo> login(@ApiParam(name = "userCode", value = "用户编号", defaultValue = "BOC0001")
+                                              @RequestParam(value = "userCode") String userCode,
+                                              @ApiParam(name = "passWord", value = "密码", defaultValue = "123456")
+                                              @RequestParam(value = "passWord") String passWord,
+                                              @ApiParam(name = "bankNo", value = "银行号", defaultValue = "105")
+                                              @RequestParam(value = "bankNo") String bankNo,
+                                              @RequestParam(value = "rememberMe", required = false) Boolean rememberMe) {
         //创建一个shiro的Subject对象token，利用这个对象来完成用户的登录认证
         Subject subject = SecurityUtils.getSubject();
         //防止重复登录
@@ -95,12 +93,12 @@ public class UserController {
                 log.info("登录成功！");
             } catch (UnknownAccountException e) {
                 //表示用户的账号错误，这个异常是在后台抛出
-                log.error("账号错误!");
-                return Result.error("账号错误!");
+                log.error("用户不存在!");
+                return Result.error("用户不存在!");
             } catch (LockedAccountException e) {
                 //表示用户的账号被锁定，这个异常是在后台抛出
-                log.error("账号被冻结!");
-                return Result.error("账号被冻结!");
+                log.error("用户已被锁定!");
+                return Result.error("用户已被锁定!");
             } catch (IncorrectCredentialsException e) {
                 //表示用户的密码错误，这个异常是shiro在认证密码时抛出
                 log.error("密码错误!");
@@ -112,7 +110,7 @@ public class UserController {
         //获取sessionId作为token返回给前端(需关闭向页面发生cookie)
         String webToken = subject.getSession().getId().toString();
         return Result.success(UserVo.builder().token(webToken)
-                .userCode(userCode).bankNo(bankNo).pwdStatus(pwdStatusEnum.getCode()).build());
+                .userCode(userCode).bankNo(bankNo).pwdStatus(pwdStatusEnum).build());
     }
 
     /**
@@ -125,21 +123,20 @@ public class UserController {
      */
     @ApiOperation("修改密码")
     @PostMapping("modifPassword")
-    public @ResponseBody
-    Result<UserVo> modifPassword(@RequestParam(value = "userCode") String userCode,
-                                 @RequestParam(value = "oldPassWord") String oldPassWord,
-                                 @RequestParam(value = "newPassWord") String newPassWord) {
+    public @ResponseBody Result<UserVo> modifPassword(@RequestParam(value = "userCode") String userCode,
+                                                      @RequestParam(value = "oldPassWord") String oldPassWord,
+                                                      @RequestParam(value = "newPassWord") String newPassWord) {
         Assert.hasText(userCode, "userCode|用户名不能为空！");
         Assert.hasText(oldPassWord, "oldPassWord|原密码不能为空！");
         Assert.hasText(newPassWord, "newPassWord|新密码不能为空！");
         Assert.isTrue((newPassWord.length() >= 8 && newPassWord.length() <= 16), "newPassWord|新密码长度只能在8-16位长度！");
-        Assert.isTrue(newPassWord.equals(oldPassWord), "newPassWord|新密码不能和原密码一样！");
+        Assert.isTrue(!newPassWord.equals(oldPassWord), "newPassWord|新密码不能和原密码一样！");
         //创建一个shiro的Subject对象token，利用这个对象来完成用户的登录认证
         Subject subject = SecurityUtils.getSubject();
         String currentUserCode = (String) subject.getPrincipal();
         Assert.isTrue(userCode.equals(currentUserCode), "userCode|不是当前登录用户，无法修改！");
         //查询用户
-        String bankNo = (String) userRealm.getSession().getAttribute(UserRealm.LOGIN_BANK_NO);
+        String bankNo = (String)subject.getSession().getAttribute(UserRealm.LOGIN_BANK_NO);
         Assert.hasText(bankNo, "bankNo|银行号不能为空！");
         UserBean userBean = userService.selectOne(userCode, bankNo);
         if (userBean == null){
@@ -160,6 +157,7 @@ public class UserController {
                 .userCode(userCode)
                 .bankNo(bankNo)
                 .passWord(hexNewPassword)
+                .salt(salt)
                 .build();
         boolean rs = userService.modifPassword(update);
         return rs ? Result.success() : Result.error("密码修改失败！");
@@ -202,8 +200,7 @@ public class UserController {
 
     @ApiOperation(value = "登出", notes = "登出")
     @PostMapping("logout")
-    public @ResponseBody
-    Result<String> logout() {
+    public @ResponseBody Result<String> logout() {
         Subject subject = SecurityUtils.getSubject();
         subject.logout();
         return Result.success();
@@ -216,8 +213,7 @@ public class UserController {
      */
     @ApiOperation("用户权限")
     @PostMapping("getAuthorList")
-    public @ResponseBody
-    Result<List<String>> getAuthorList() {
+    public @ResponseBody Result<List<String>> getAuthorList() {
         Subject subject = SecurityUtils.getSubject();
         List<String> authors = new ArrayList<>(userRealm.authorInfos(subject.getPrincipals()));
         return Result.success(authors);
@@ -230,8 +226,7 @@ public class UserController {
      */
     @ApiOperation("清除缓存")
     @PostMapping("clearCache")
-    public @ResponseBody
-    Result<List<String>> clearCache() {
+    public @ResponseBody Result<List<String>> clearCache() {
         userRealm.clearCache();
         return Result.success();
     }
@@ -245,12 +240,10 @@ public class UserController {
      */
     @ApiOperation("解锁用户")
     @PostMapping("unlockAccount")
-    public @ResponseBody
-    Result<String> unlockAccount(
-            @ApiParam(name = "userCode", value = "用户编号")
-            @RequestParam(value = "userCode") String userCode,
-            @ApiParam(name = "bankNo", value = "银行号")
-            @RequestParam(value = "bankNo") String bankNo) {
+    public @ResponseBody Result<String> unlockAccount(@ApiParam(name = "userCode", value = "用户编号")
+                                                      @RequestParam(value = "userCode") String userCode,
+                                                      @ApiParam(name = "bankNo", value = "银行号")
+                                                      @RequestParam(value = "bankNo") String bankNo) {
 
         Assert.hasText(userCode, "userCode|用户名不能为空！");
         Assert.hasText(bankNo, "bankNo|银行号不能为空！");
@@ -261,8 +254,7 @@ public class UserController {
     @RequiresRoles(value = {"admin", "teller"}, logical = Logical.OR)
     @ApiOperation(value = "test", notes = "权限测试-角色")
     @PostMapping("test")
-    public @ResponseBody
-    Result<String> test() {
+    public @ResponseBody Result<String> test() {
         log.info("权限测试-角色, ok!");
         return Result.success("test ok");
     }
@@ -270,8 +262,7 @@ public class UserController {
     @RequiresPermissions("delete")
     @ApiOperation(value = "删除", notes = "权限测试-del")
     @PostMapping("del")
-    public @ResponseBody
-    Result<String> del() {
+    public @ResponseBody Result<String> del() {
         log.info("权限测试-del, ok!");
         return Result.success("del ok");
     }

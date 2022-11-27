@@ -1,38 +1,44 @@
 package com.bocsoft.obss.common.shiro.config.web;
 
+import com.bocsoft.obss.common.shiro.config.filter.KickoutSessionControlFilter;
 import com.bocsoft.obss.common.shiro.config.filter.ShiroAuthenFilter;
 import com.bocsoft.obss.common.util.RedisUtil;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.event.EventBus;
 import org.apache.shiro.event.support.DefaultEventBus;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
 import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
-
-import java.util.Properties;
 
 /**
  * 【shiro-config】
  */
 @Configuration
+@AutoConfigureAfter(ShiroWebAutoConfiguration.class)
 public class ShiroConfig {
 
     /**
      * 过滤器管理
+     * ShiroWebAutoConfiguration 注册的bean: sessionManager、securityManager、shiroFilterChainDefinition
      */
     @Bean
-    public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
+    public ShiroFilterFactoryBean shiroFilterFactoryBean(SessionManager sessionManager, SecurityManager securityManager, ShiroFilterChainDefinition shiroFilterChainDefinition) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         shiroFilterFactoryBean.setLoginUrl("/user/login.html");
         //shiroFilterFactoryBean.setUnauthorizedUrl("/noauth");
-        //shiroFilterFactoryBean.getFilters().put("authc", new ShiroAuthenFilter());
+        shiroFilterFactoryBean.getFilters().put("authc", new ShiroAuthenFilter());
+        shiroFilterFactoryBean.getFilters().put("kickout", kickoutSessionControlFilter(sessionManager));
+        //过滤规则
+        shiroFilterFactoryBean.setFilterChainDefinitionMap(shiroFilterChainDefinition.getFilterChainMap());
         return shiroFilterFactoryBean;
     }
 
@@ -56,6 +62,7 @@ public class ShiroConfig {
     }
 
     /**
+     * FormAuthenticationFilter 过滤器 过滤记住我
      * ShiroAuthenFilter生效
      */
     @Bean
@@ -67,16 +74,18 @@ public class ShiroConfig {
     }
 
     /**
-     * 异常解析跳转
+     * 踢人过滤器
+     * @param sessionManager
+     * @return
      */
-    /*@Bean
-    public SimpleMappingExceptionResolver resolver() {
-        SimpleMappingExceptionResolver exceptionResolver = new SimpleMappingExceptionResolver();
-        Properties properties = new Properties();
-        properties.setProperty("org.apache.shiro.authz.UnauthorizedException", "error/403");
-        exceptionResolver.setExceptionMappings(properties);
-        return exceptionResolver;
-    }*/
+    @Bean
+    public KickoutSessionControlFilter kickoutSessionControlFilter(SessionManager sessionManager){
+        KickoutSessionControlFilter kickoutSessionControlFilter = new KickoutSessionControlFilter(sessionManager, redisUtil(), shiroProperties());
+        kickoutSessionControlFilter.setLoginUrl("/user/login.html");  //踢出后重定向url
+        kickoutSessionControlFilter.setKickoutAfter(false);  //是否踢出刚登录的
+        kickoutSessionControlFilter.setMaxSession(2);  //一个账号允许在线人数
+        return kickoutSessionControlFilter;
+    }
 
     @Bean
     public EventBus eventBus() {
@@ -103,5 +112,10 @@ public class ShiroConfig {
     @Bean
     public ShiroProperties shiroProperties() {
         return new ShiroProperties();
+    }
+
+    @Bean
+    public ShiroProperties.UserProperties userProperties(){
+        return new ShiroProperties.UserProperties();
     }
 }
