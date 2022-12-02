@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 同一个账号只能一个人使用，否则踢人
@@ -111,7 +112,7 @@ public class KickoutSessionControlFilter extends AccessControlFilter {
             }
         }
         //同步redis
-        redisUtil.set(getRedisKickoutKey(), onlines);
+        redisUtil.set(getRedisKickoutKey(), onlines, shiroProperties.getSessionTimeout(), TimeUnit.MINUTES);
         //如果被踢出了，直接退出，重定向到踢出后的地址
         if (session.getAttribute(KICOUTKEY) != null) {
             try {

@@ -27,7 +27,8 @@ public class H2Test extends BaseTest {
     @SneakyThrows
     @Test
     public void addH2() {
-        UserBean user = UserBean.builder().userCode("lisa").passWord("123456").build();
+        log.info("H2插入数据测试");
+        UserBean user = UserBean.builder().bankNo("105").userCode("lisa").passWord("123456").salt("xxxxxxxx").build();
         int rt = userMapper.insert(user);
         Assert.assertEquals("插入失败!", 1, rt);
         LambdaQueryWrapper<UserBean> wrapper = Wrappers.lambdaQuery();
