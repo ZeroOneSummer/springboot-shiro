@@ -22,6 +22,7 @@
         <module>service-two</module>
         <module>shiro</module>
         <module>common</module>
+        <module>quartz</module>
     </modules>
 
     <properties>

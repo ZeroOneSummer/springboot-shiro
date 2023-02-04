@@ -1,0 +1,30 @@
+# 主配置、config配置必须放在bootstrap里才会生效
+spring:
+  application:
+    name: quartz-app
+  profiles:
+    active: @profile.active@
+  cloud:
+    consul:
+      host: localhost                         #  默认localhost
+      port: 8500                              # 默认8500
+      enabled: false                          # 是否启动consul
+      discovery:
+        enabled: true                         # 启用服务
+        register: true                        # 启用服务注册
+
+# 自定义任务
+zero:
+  quartz:
+    taskList:
+      - task-name: cftReceive
+        task-cron: 0/5 * * * * ?
+        task-params:
+          sourcePath: /home/cft/receive/
+          targetPath: /home/cft/receive/tmp/
+          targetRegex: '^CFT(.*).TXT$'
+      - task-name: cftBackup
+        task-cron: 0/10 * * * * ?
+        task-params:
+          sourcePath: ${zero.quartz.taskList[0].task-params.targetPath}
+          targetPath: /home/cft/receive/backup/%s/

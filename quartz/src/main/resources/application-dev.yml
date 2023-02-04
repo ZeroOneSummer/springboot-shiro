@@ -1,0 +1,47 @@
+server:
+  port: 9099
+  servlet:
+    context-path: /
+
+spring:
+  datasource:
+    initialization-mode: always
+    schema: classpath:db/tables_h2.sql
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:~/test;AUTO_SERVER=TRUE  # ~代表用户根目录，自动混合模式（允许多个客户端访问），quartz依赖行级锁;MVCC=TRUE
+    username: root
+    password: root
+    h2:
+      console:
+        path: /h2        # http://localhost:9099/h2   访问DB管理界面
+        enabled: true
+        settings:
+          trace: true             #开启h2 console 跟踪方便调试，默认 false
+          web-allow-others: true  #允许 console 远程访问，默认false
+  quartz:
+    # 数据库存储方式
+    job-store-type: JDBC
+    jdbc:
+      initialize-schema: NEVER  # NEVER EMBEDDED ALWAYS
+    properties:
+      org:
+        quartz:
+          auto-startup: true    # 启用开关（自定义）
+          startup-delay: 5      # 延迟启动s（自定义）
+          group-name: A-GROUP   # 分组名称，用于机房间隔离（自定义）
+          scheduler:
+            instanceName: zeroScheduler
+            instanceId: AUTO
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            isClustered: false  # 是否集群
+            useProperties: true
+            clusterCheckinInterval: 10000
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 50
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
